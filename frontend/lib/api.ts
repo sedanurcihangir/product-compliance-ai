@@ -9,6 +9,32 @@ export type ProductCategoryInput = {
   description?: string | null;
 };
 
+export type Country = {
+  id: number;
+  name: string;
+  code: string;
+};
+
+export type RegulationStatus = "active" | "inactive";
+
+export type Regulation = {
+  id: number;
+  title: string;
+  description: string | null;
+  country_id: number;
+  effective_date: string | null;
+  status: RegulationStatus;
+  country: Country;
+};
+
+export type RegulationInput = {
+  title: string;
+  description?: string | null;
+  country_id: number;
+  effective_date?: string | null;
+  status: RegulationStatus;
+};
+
 function getApiBaseUrl(): string {
   // In the browser, use same-origin URLs so Next.js rewrites proxy to FastAPI.
   // This prevents cross-origin Failed to fetch between localhost and 127.0.0.1.
@@ -93,6 +119,34 @@ export function updateProductCategory(
 
 export function deleteProductCategory(id: number) {
   return request<void>(`/api/product-categories/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export function listCountries() {
+  return request<Country[]>("/api/countries");
+}
+
+export function listRegulations() {
+  return request<Regulation[]>("/api/regulations");
+}
+
+export function createRegulation(payload: RegulationInput) {
+  return request<Regulation>("/api/regulations", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateRegulation(id: number, payload: RegulationInput) {
+  return request<Regulation>(`/api/regulations/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteRegulation(id: number) {
+  return request<void>(`/api/regulations/${id}`, {
     method: "DELETE",
   });
 }

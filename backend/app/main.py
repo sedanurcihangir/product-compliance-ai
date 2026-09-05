@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import product_categories_router
+from app.routers import (
+    countries_router,
+    product_categories_router,
+    regulations_router,
+)
 
 app = FastAPI(title="Product Compliance AI")
 
@@ -18,6 +22,8 @@ app.add_middleware(
 )
 
 app.include_router(product_categories_router)
+app.include_router(countries_router)
+app.include_router(regulations_router)
 
 
 @app.get("/health")

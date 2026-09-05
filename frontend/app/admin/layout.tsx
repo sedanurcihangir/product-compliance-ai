@@ -23,6 +23,9 @@ export default function AdminLayout({
           <Link href="/admin/product-categories" className={styles.navLink}>
             Product Categories
           </Link>
+          <Link href="/admin/regulations" className={styles.navLink}>
+            Mevzuatlar
+          </Link>
         </nav>
       </aside>
       <main className={styles.main}>{children}</main>
