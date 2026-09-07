@@ -7,7 +7,15 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine, pool
 
 from app.db import Base
-from app.models import Country, ProductCategory, Regulation  # noqa: F401 — register models
+from app.models import (  # noqa: F401 — register models
+    Country,
+    ProductCategory,
+    Regulation,
+    Requirement,
+    RiskRule,
+    Source,
+)
+
 
 # Load backend/.env
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")

@@ -1,0 +1,228 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 1100px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.subtitle {
+  color: #4b5563;
+  font-size: 0.95rem;
+  max-width: 42rem;
+  line-height: 1.45;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.75rem 0.6rem;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+
+.table th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #6b7280;
+}
+
+.urlLink {
+  display: inline-block;
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #1d4ed8;
+  text-decoration: none;
+  vertical-align: bottom;
+}
+
+.urlLink:hover {
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: #111827;
+  color: #ffffff;
+}
+
+.primaryButton:hover {
+  background: #1f2937;
+}
+
+.secondaryButton {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.secondaryButton:hover {
+  background: #d1d5db;
+}
+
+.dangerButton {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.dangerButton:hover {
+  background: #fecaca;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.dangerButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.stateText {
+  color: #6b7280;
+  padding: 1rem 0.25rem;
+}
+
+.successBanner,
+.errorBanner {
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.92rem;
+}
+
+.successBanner {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.errorBanner {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.modal {
+  width: min(480px, 100%);
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.modalTitle {
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.input {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+  font: inherit;
+  font-weight: 400;
+  background: #ffffff;
+}
+
+.formError {
+  color: #991b1b;
+  font-size: 0.88rem;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.confirmText {
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.confirmName {
+  font-weight: 700;
+  margin-bottom: 1rem;
+  word-break: break-word;
+}
+
+@media (max-width: 800px) {
+  .title {
+    font-size: 1.35rem;
+  }
+
+  .urlLink {
+    max-width: 14rem;
+  }
+}

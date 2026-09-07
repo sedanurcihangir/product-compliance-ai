@@ -26,7 +26,17 @@ export default function AdminLayout({
           <Link href="/admin/regulations" className={styles.navLink}>
             Mevzuatlar
           </Link>
+          <Link href="/admin/requirements" className={styles.navLink}>
+            Gereklilikler
+          </Link>
+          <Link href="/admin/risk-rules" className={styles.navLink}>
+            Risk Kuralları
+          </Link>
+          <Link href="/admin/sources" className={styles.navLink}>
+            Kaynaklar
+          </Link>
         </nav>
+
       </aside>
       <main className={styles.main}>{children}</main>
     </div>

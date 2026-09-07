@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.db import get_db
-from app.models import Country, Regulation
+from app.models import Country, Regulation, Requirement
 from app.schemas import RegulationCreate, RegulationResponse, RegulationUpdate
 
 router = APIRouter(prefix="/api/regulations", tags=["regulations"])
@@ -89,6 +89,16 @@ def delete_regulation(regulation_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Regulation not found.",
         )
+
+    linked_requirement = db.execute(
+        select(Requirement.id).where(Requirement.regulation_id == regulation_id).limit(1)
+    ).scalar_one_or_none()
+    if linked_requirement is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Cannot delete regulation while related requirements exist.",
+        )
+
     db.delete(regulation)
     db.commit()
     return None

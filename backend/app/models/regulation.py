@@ -8,6 +8,7 @@ from app.db import Base
 
 if TYPE_CHECKING:
     from app.models.country import Country
+    from app.models.requirement import Requirement
 
 
 class Regulation(Base):
@@ -21,3 +22,6 @@ class Regulation(Base):
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="active")
 
     country: Mapped["Country"] = relationship(back_populates="regulations")
+    requirements: Mapped[list["Requirement"]] = relationship(
+        back_populates="regulation",
+    )

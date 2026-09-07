@@ -5,7 +5,12 @@ from app.routers import (
     countries_router,
     product_categories_router,
     regulations_router,
+    requirements_router,
+    risk_rules_router,
+    sources_router,
 )
+
+
 
 app = FastAPI(title="Product Compliance AI")
 
@@ -24,6 +29,10 @@ app.add_middleware(
 app.include_router(product_categories_router)
 app.include_router(countries_router)
 app.include_router(regulations_router)
+app.include_router(requirements_router)
+app.include_router(risk_rules_router)
+app.include_router(sources_router)
+
 
 
 @app.get("/health")

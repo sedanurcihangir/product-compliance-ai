@@ -150,3 +150,119 @@ export function deleteRegulation(id: number) {
     method: "DELETE",
   });
 }
+
+export type Requirement = {
+  id: number;
+  regulation_id: number;
+  title: string;
+  description: string | null;
+  type: string | null;
+  regulation: Regulation;
+};
+
+export type RequirementInput = {
+  regulation_id: number;
+  title: string;
+  description?: string | null;
+  type?: string | null;
+};
+
+export function listRequirements() {
+  return request<Requirement[]>("/api/requirements");
+}
+
+export function createRequirement(payload: RequirementInput) {
+  return request<Requirement>("/api/requirements", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateRequirement(id: number, payload: RequirementInput) {
+  return request<Requirement>(`/api/requirements/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteRequirement(id: number) {
+  return request<void>(`/api/requirements/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export type RiskRule = {
+  id: number;
+  condition: string;
+  risk_level: string;
+  explanation: string | null;
+};
+
+export type RiskRuleInput = {
+  condition: string;
+  risk_level: string;
+  explanation?: string | null;
+};
+
+export function listRiskRules() {
+  return request<RiskRule[]>("/api/risk-rules");
+}
+
+export function createRiskRule(payload: RiskRuleInput) {
+  return request<RiskRule>("/api/risk-rules", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateRiskRule(id: number, payload: RiskRuleInput) {
+  return request<RiskRule>(`/api/risk-rules/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteRiskRule(id: number) {
+  return request<void>(`/api/risk-rules/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export type Source = {
+  id: number;
+  organization: string;
+  url: string;
+  publication_date: string | null;
+  last_checked: string | null;
+};
+
+export type SourceInput = {
+  organization: string;
+  url: string;
+  publication_date?: string | null;
+  last_checked?: string | null;
+};
+
+export function listSources() {
+  return request<Source[]>("/api/sources");
+}
+
+export function createSource(payload: SourceInput) {
+  return request<Source>("/api/sources", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateSource(id: number, payload: SourceInput) {
+  return request<Source>(`/api/sources/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteSource(id: number) {
+  return request<void>(`/api/sources/${id}`, {
+    method: "DELETE",
+  });
+}
