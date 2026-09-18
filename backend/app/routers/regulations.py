@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.db import get_db
-from app.models import Country, Regulation, Requirement
+from app.models import Country, ProductCategory, Regulation, Requirement
 from app.schemas import RegulationCreate, RegulationResponse, RegulationUpdate
 
 router = APIRouter(prefix="/api/regulations", tags=["regulations"])
@@ -33,13 +33,29 @@ def _ensure_country_exists(db: Session, country_id: int) -> Country:
     return country
 
 
+def _ensure_product_category_exists_if_set(
+    db: Session, product_category_id: int | None
+) -> ProductCategory | None:
+    if product_category_id is None:
+        return None
+    category = db.get(ProductCategory, product_category_id)
+    if category is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Product category not found.",
+        )
+    return category
+
+
 @router.post("", response_model=RegulationResponse, status_code=status.HTTP_201_CREATED)
 def create_regulation(payload: RegulationCreate, db: Session = Depends(get_db)):
     _ensure_country_exists(db, payload.country_id)
+    _ensure_product_category_exists_if_set(db, payload.product_category_id)
     regulation = Regulation(
         title=payload.title,
         description=payload.description,
         country_id=payload.country_id,
+        product_category_id=payload.product_category_id,
         effective_date=payload.effective_date,
         status=payload.status,
     )
@@ -71,10 +87,12 @@ def update_regulation(
 ):
     regulation = _get_regulation_or_404(db, regulation_id)
     _ensure_country_exists(db, payload.country_id)
+    _ensure_product_category_exists_if_set(db, payload.product_category_id)
 
     regulation.title = payload.title
     regulation.description = payload.description
     regulation.country_id = payload.country_id
+    regulation.product_category_id = payload.product_category_id
     regulation.effective_date = payload.effective_date
     regulation.status = payload.status
     db.commit()

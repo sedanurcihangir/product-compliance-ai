@@ -5,8 +5,10 @@ import {
   createRegulation,
   deleteRegulation,
   listCountries,
+  listProductCategories,
   listRegulations,
   type Country,
+  type ProductCategory,
   type Regulation,
   type RegulationStatus,
   updateRegulation,
@@ -19,6 +21,7 @@ type FormState = {
   title: string;
   description: string;
   country_id: string;
+  product_category_id: string;
   effective_date: string;
   status: RegulationStatus;
 };
@@ -27,6 +30,7 @@ const emptyForm: FormState = {
   title: "",
   description: "",
   country_id: "",
+  product_category_id: "",
   effective_date: "",
   status: "active",
 };
@@ -38,6 +42,7 @@ function statusLabel(status: RegulationStatus): string {
 export default function RegulationsPage() {
   const [regulations, setRegulations] = useState<Regulation[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -49,6 +54,7 @@ export default function RegulationsPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [countriesError, setCountriesError] = useState<string | null>(null);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
   const [deleteTarget, setDeleteTarget] = useState<Regulation | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -78,12 +84,31 @@ export default function RegulationsPage() {
     }
   }, []);
 
+  const loadCategories = useCallback(async () => {
+    setCategoriesError(null);
+    try {
+      const data = await listProductCategories();
+      setCategories(data);
+    } catch (err) {
+      setCategoriesError(
+        err instanceof Error ? err.message : "Ürün kategorileri yüklenemedi.",
+      );
+    }
+  }, []);
+
   useEffect(() => {
     startTransition(() => {
       void loadRegulations();
       void loadCountries();
+      void loadCategories();
     });
-  }, [loadRegulations, loadCountries]);
+  }, [loadRegulations, loadCountries, loadCategories]);
+
+  function categoryName(categoryId: number | null): string {
+    if (categoryId == null) return "—";
+    const match = categories.find((category) => category.id === categoryId);
+    return match ? match.name : `ID ${categoryId}`;
+  }
 
   function openCreateForm() {
     setFormMode("create");
@@ -91,6 +116,7 @@ export default function RegulationsPage() {
     setForm({
       ...emptyForm,
       country_id: countries[0] ? String(countries[0].id) : "",
+      product_category_id: "",
     });
     setFormError(null);
     setSuccess(null);
@@ -104,6 +130,10 @@ export default function RegulationsPage() {
       title: regulation.title,
       description: regulation.description ?? "",
       country_id: String(regulation.country_id),
+      product_category_id:
+        regulation.product_category_id != null
+          ? String(regulation.product_category_id)
+          : "",
       effective_date: regulation.effective_date ?? "",
       status: regulation.status,
     });
@@ -143,6 +173,9 @@ export default function RegulationsPage() {
       title,
       description: form.description.trim() ? form.description.trim() : null,
       country_id: Number(form.country_id),
+      product_category_id: form.product_category_id
+        ? Number(form.product_category_id)
+        : null,
       effective_date: form.effective_date ? form.effective_date : null,
       status: form.status,
     };
@@ -218,6 +251,11 @@ export default function RegulationsPage() {
       {countriesError ? (
         <div className={styles.errorBanner}>Ülke listesi: {countriesError}</div>
       ) : null}
+      {categoriesError ? (
+        <div className={styles.errorBanner}>
+          Ürün kategorileri: {categoriesError}
+        </div>
+      ) : null}
       {success ? <div className={styles.successBanner}>{success}</div> : null}
       {error ? <div className={styles.errorBanner}>{error}</div> : null}
 
@@ -234,6 +272,7 @@ export default function RegulationsPage() {
                   <th>ID</th>
                   <th>Başlık</th>
                   <th>Ülke</th>
+                  <th>Ürün Kategorisi</th>
                   <th>Yürürlük Tarihi</th>
                   <th>Durum</th>
                   <th>İşlemler</th>
@@ -247,6 +286,7 @@ export default function RegulationsPage() {
                     <td>
                       {regulation.country.name} ({regulation.country.code})
                     </td>
+                    <td>{categoryName(regulation.product_category_id)}</td>
                     <td>{regulation.effective_date || "—"}</td>
                     <td>{statusLabel(regulation.status)}</td>
                     <td>
@@ -336,6 +376,27 @@ export default function RegulationsPage() {
                   {countries.map((country) => (
                     <option key={country.id} value={country.id}>
                       {country.name} ({country.code})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className={styles.label}>
+                Ürün Kategorisi
+                <select
+                  className={styles.select}
+                  value={form.product_category_id}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      product_category_id: event.target.value,
+                    }))
+                  }
+                  disabled={saving}
+                >
+                  <option value="">Kategori seçilmedi (opsiyonel)</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
                     </option>
                   ))}
                 </select>

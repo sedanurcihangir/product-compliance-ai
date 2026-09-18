@@ -16,7 +16,12 @@ if not DATABASE_URL:
         "and set your PostgreSQL connection string."
     )
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+# connect_timeout: fail fast when PostgreSQL is down (avoids long UI hangs).
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    connect_args={"connect_timeout": 5},
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

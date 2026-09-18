@@ -12,6 +12,7 @@ class RegulationCreate(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = None
     country_id: int = Field(gt=0)
+    product_category_id: int | None = Field(default=None, gt=0)
     effective_date: date | None = None
     status: RegulationStatus = "active"
 
@@ -28,6 +29,7 @@ class RegulationUpdate(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = None
     country_id: int = Field(gt=0)
+    product_category_id: int | None = Field(default=None, gt=0)
     effective_date: date | None = None
     status: RegulationStatus
 
@@ -47,6 +49,7 @@ class RegulationResponse(BaseModel):
     title: str
     description: str | None = None
     country_id: int
+    product_category_id: int | None = None
     effective_date: date | None = None
     status: RegulationStatus
     country: CountryResponse

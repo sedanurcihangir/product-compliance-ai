@@ -29,8 +29,18 @@
   display: inline-block;
   margin-top: 0.5rem;
   align-self: center;
-  background: #111827;
+  background: #1d4ed8;
   color: #ffffff;
   padding: 0.7rem 1.1rem;
   border-radius: 8px;
+}
+
+.secondary {
+  display: inline-block;
+  align-self: center;
+  background: #e5e7eb;
+  color: #111827;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-size: 0.92rem;
 }

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers import (
     countries_router,
+    evaluations_router,
     product_categories_router,
     regulations_router,
     requirements_router,
@@ -32,6 +33,7 @@ app.include_router(regulations_router)
 app.include_router(requirements_router)
 app.include_router(risk_rules_router)
 app.include_router(sources_router)
+app.include_router(evaluations_router)
 
 
 

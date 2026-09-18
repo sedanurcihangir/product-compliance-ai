@@ -6,8 +6,14 @@ export default function Home() {
     <main className={styles.page}>
       <div className={styles.intro}>
         <h1>Product Compliance AI</h1>
-        <p>Admin panelinden ürün kategorilerini yönetebilirsiniz.</p>
-        <Link className={styles.cta} href="/admin/product-categories">
+        <p>
+          Ürün ithalatı ön uygunluk değerlendirmesi için kullanıcı paneline
+          gidin veya veri yönetimi için admin paneli kullanın.
+        </p>
+        <Link className={styles.cta} href="/app">
+          Kullanıcı Paneli&apos;ne Git
+        </Link>
+        <Link className={styles.secondary} href="/admin/product-categories">
           Admin Panel&apos;e Git
         </Link>
       </div>

@@ -22,6 +22,7 @@ export type Regulation = {
   title: string;
   description: string | null;
   country_id: number;
+  product_category_id: number | null;
   effective_date: string | null;
   status: RegulationStatus;
   country: Country;
@@ -31,6 +32,7 @@ export type RegulationInput = {
   title: string;
   description?: string | null;
   country_id: number;
+  product_category_id?: number | null;
   effective_date?: string | null;
   status: RegulationStatus;
 };
@@ -264,5 +266,90 @@ export function updateSource(id: number, payload: SourceInput) {
 export function deleteSource(id: number) {
   return request<void>(`/api/sources/${id}`, {
     method: "DELETE",
+  });
+}
+
+export type EvaluationInput = {
+  product_name: string;
+  product_category_id: number;
+  product_description: string;
+  supplier_country: string;
+  product_url?: string | null;
+};
+
+export type EvaluationProduct = {
+  product_name: string;
+  product_category_id: number;
+  product_category_name: string;
+  product_description: string;
+  supplier_country: string;
+  product_url: string | null;
+};
+
+export type EvaluationRegulation = {
+  id: number;
+  title: string;
+  description: string | null;
+  status: string;
+  country: Country;
+};
+
+export type EvaluationRequirement = {
+  id: number;
+  title: string;
+  description: string | null;
+  type: string | null;
+  regulation_id: number;
+};
+
+export type EvaluationRiskRule = {
+  id: number;
+  condition: string;
+  risk_level: string;
+  explanation: string | null;
+};
+
+export type EvaluationSource = {
+  id: number;
+  organization: string;
+  url: string;
+  publication_date: string | null;
+  last_checked: string | null;
+};
+
+export type EvaluationResult = {
+  product: EvaluationProduct;
+  regulations: EvaluationRegulation[];
+  requirements: EvaluationRequirement[];
+  risk_rules: EvaluationRiskRule[];
+  sources: EvaluationSource[];
+  limitations: string[];
+  evaluation_mode: "deterministic" | "llm";
+  ai_assessment: AiAssessment | null;
+};
+
+export type AiRiskAssessment = {
+  level: string;
+  reason: string;
+};
+
+export type AiAssessment = {
+  summary: string;
+  missing_information: string[];
+  risk_assessment: AiRiskAssessment;
+  recommended_actions: string[];
+  limitations: string[];
+};
+
+export type EvaluationResponse = {
+  success: boolean;
+  message: string;
+  evaluation: EvaluationResult;
+};
+
+export function createEvaluation(payload: EvaluationInput) {
+  return request<EvaluationResponse>("/api/evaluations", {
+    method: "POST",
+    body: JSON.stringify(payload),
   });
 }

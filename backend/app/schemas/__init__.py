@@ -24,6 +24,14 @@ from app.schemas.source import (
     SourceResponse,
     SourceUpdate,
 )
+from app.schemas.evaluation import (
+    AiAssessment,
+    AiRiskAssessment,
+    EvaluationCreate,
+    EvaluationData,
+    EvaluationResponse,
+    EvaluationResult,
+)
 
 __all__ = [
     "ProductCategoryCreate",
@@ -42,4 +50,10 @@ __all__ = [
     "SourceCreate",
     "SourceUpdate",
     "SourceResponse",
+    "EvaluationCreate",
+    "EvaluationData",
+    "EvaluationResponse",
+    "EvaluationResult",
+    "AiAssessment",
+    "AiRiskAssessment",
 ]
