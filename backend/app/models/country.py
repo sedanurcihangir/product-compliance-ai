@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db import Base
 
 if TYPE_CHECKING:
+    from app.models.product_distribution import ProductDistribution
     from app.models.regulation import Regulation
 
 
@@ -17,3 +18,6 @@ class Country(Base):
     code: Mapped[str] = mapped_column(String(16), unique=True, nullable=False)
 
     regulations: Mapped[list["Regulation"]] = relationship(back_populates="country")
+    product_distributions: Mapped[list["ProductDistribution"]] = relationship(
+        back_populates="import_country",
+    )

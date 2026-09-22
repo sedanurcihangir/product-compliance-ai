@@ -3,11 +3,15 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.db import get_db
+from app.deps.auth import get_current_admin_user
 from app.models import Regulation, Requirement
 from app.schemas import RequirementCreate, RequirementResponse, RequirementUpdate
 
-router = APIRouter(prefix="/api/requirements", tags=["requirements"])
-
+router = APIRouter(
+    prefix="/api/requirements",
+    tags=["requirements"],
+    dependencies=[Depends(get_current_admin_user)],
+)
 
 def _get_requirement_or_404(db: Session, requirement_id: int) -> Requirement:
     requirement = db.execute(

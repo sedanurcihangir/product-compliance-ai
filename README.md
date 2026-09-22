@@ -17,15 +17,15 @@ Amaç, satın alma / ithalat öncesi bilgilendirici bir karar desteği sunmaktı
 | Alan | Durum |
 |------|--------|
 | Ülke | Türkiye / TR |
-| Ürün kapsamı | Bluetooth Kulaklık |
-| Veri modeli | ProductCategory, Regulation, Requirement, RiskRule, Source |
-| Admin | CRUD panelleri |
-| Kullanıcı | Değerlendirme formu + sonuç ekranı |
+| Ürün kapsamı | Elektronik ürünler (Product → kategori: Elektronik Ürünler) |
+| Veri modeli | ProductCategory, Product, ProductRegulation, Regulation, Requirement, RiskRule, Source, Evaluation, ProductDistribution |
+| Admin | CRUD panelleri + Dashboard V2 (harita / dağılım) |
+| Kullanıcı | Auth, değerlendirme, geçmiş, analiz |
 | Retrieval / RAG | Keyword / token overlap tabanlı |
 | LLM | OpenAI-compatible Chat Completions |
 | Fallback | Deterministic (kural tabanlı) değerlendirme |
 
-MVP veri setinde **Bluetooth Kulaklık** için resmi kaynaklara dayalı gerçek kayıtlar bulunmaktadır. Ayrı olarak demo/test kayıtları da tutulur.
+MVP veri setinde **Bluetooth Kulaklık** ve **Akıllı Saat** için resmi kaynaklara dayalı gerçek kayıtlar bulunmaktadır. Ayrı olarak demo/test kayıtları da tutulur.
 
 ---
 

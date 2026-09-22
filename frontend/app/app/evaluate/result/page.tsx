@@ -279,6 +279,14 @@ export default function EvaluateResultPage() {
         <Link href="/app/evaluate" className={styles.secondaryLink}>
           Forma dön
         </Link>
+        {result.evaluation_id ? (
+          <Link
+            href={`/app/evaluations/${result.evaluation_id}`}
+            className={styles.secondaryLink}
+          >
+            Belge yükle
+          </Link>
+        ) : null}
         <Link href="/app" className={styles.primaryLink}>
           Ana sayfaya dön
         </Link>

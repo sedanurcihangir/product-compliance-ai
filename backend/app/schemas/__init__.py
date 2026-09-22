@@ -4,6 +4,11 @@ from app.schemas.product_category import (
     ProductCategoryResponse,
     ProductCategoryUpdate,
 )
+from app.schemas.product import (
+    ProductCreate,
+    ProductResponse,
+    ProductUpdate,
+)
 from app.schemas.regulation import (
     RegulationCreate,
     RegulationResponse,
@@ -29,14 +34,31 @@ from app.schemas.evaluation import (
     AiRiskAssessment,
     EvaluationCreate,
     EvaluationData,
+    EvaluationDetailResponse,
+    EvaluationHistoryItem,
     EvaluationResponse,
     EvaluationResult,
+)
+from app.schemas.auth import (
+    AuthMessageResponse,
+    LoginRequest,
+    RegisterRequest,
+    UserResponse,
+)
+from app.schemas.document import DocumentAnalysisResponse, DocumentAiAssessment, DocumentDetailResponse, DocumentResponse
+from app.schemas.product_distribution import (
+    ProductDistributionCreate,
+    ProductDistributionResponse,
+    ProductDistributionUpdate,
 )
 
 __all__ = [
     "ProductCategoryCreate",
     "ProductCategoryUpdate",
     "ProductCategoryResponse",
+    "ProductCreate",
+    "ProductUpdate",
+    "ProductResponse",
     "CountryResponse",
     "RegulationCreate",
     "RegulationUpdate",
@@ -54,6 +76,19 @@ __all__ = [
     "EvaluationData",
     "EvaluationResponse",
     "EvaluationResult",
+    "EvaluationHistoryItem",
+    "EvaluationDetailResponse",
     "AiAssessment",
     "AiRiskAssessment",
+    "RegisterRequest",
+    "LoginRequest",
+    "UserResponse",
+    "AuthMessageResponse",
+    "DocumentResponse",
+    "DocumentDetailResponse",
+    "DocumentAnalysisResponse",
+    "DocumentAiAssessment",
+    "ProductDistributionCreate",
+    "ProductDistributionUpdate",
+    "ProductDistributionResponse",
 ]

@@ -1,0 +1,15 @@
+[
+  { "city_code": "01", "city": "Adana", "lat": 37.0, "lng": 35.3213 },
+  { "city_code": "06", "city": "Ankara", "lat": 39.9334, "lng": 32.8597 },
+  { "city_code": "07", "city": "Antalya", "lat": 36.8969, "lng": 30.7133 },
+  { "city_code": "16", "city": "Bursa", "lat": 40.1885, "lng": 29.061 },
+  { "city_code": "21", "city": "Diyarbakır", "lat": 37.9144, "lng": 40.2306 },
+  { "city_code": "27", "city": "Gaziantep", "lat": 37.0662, "lng": 37.3833 },
+  { "city_code": "34", "city": "İstanbul", "lat": 41.0082, "lng": 28.9784 },
+  { "city_code": "35", "city": "İzmir", "lat": 38.4192, "lng": 27.1287 },
+  { "city_code": "41", "city": "Kocaeli", "lat": 40.8533, "lng": 29.8815 },
+  { "city_code": "42", "city": "Konya", "lat": 37.8746, "lng": 32.4932 },
+  { "city_code": "55", "city": "Samsun", "lat": 41.2867, "lng": 36.33 },
+  { "city_code": "59", "city": "Tekirdağ", "lat": 40.9781, "lng": 27.511 },
+  { "city_code": "61", "city": "Trabzon", "lat": 41.0027, "lng": 39.7168 }
+]

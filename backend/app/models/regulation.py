@@ -8,6 +8,7 @@ from app.db import Base
 
 if TYPE_CHECKING:
     from app.models.country import Country
+    from app.models.product import Product
     from app.models.product_category import ProductCategory
     from app.models.requirement import Requirement
 
@@ -19,6 +20,8 @@ class Regulation(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     country_id: Mapped[int] = mapped_column(ForeignKey("countries.id"), nullable=False)
+    # Legacy single-category FK kept for backward compatibility / admin UI.
+    # Canonical product links live in product_regulations (M2M).
     product_category_id: Mapped[int | None] = mapped_column(
         ForeignKey("product_categories.id"),
         nullable=True,
@@ -32,4 +35,8 @@ class Regulation(Base):
     )
     requirements: Mapped[list["Requirement"]] = relationship(
         back_populates="regulation",
+    )
+    products: Mapped[list["Product"]] = relationship(
+        secondary="product_regulations",
+        back_populates="regulations",
     )

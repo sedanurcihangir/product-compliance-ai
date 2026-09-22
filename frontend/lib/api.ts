@@ -9,6 +9,21 @@ export type ProductCategoryInput = {
   description?: string | null;
 };
 
+export type Product = {
+  id: number;
+  name: string;
+  description: string | null;
+  product_category_id: number;
+  product_category_name: string | null;
+  created_at: string;
+};
+
+export type ProductInput = {
+  name: string;
+  description?: string | null;
+  product_category_id: number;
+};
+
 export type Country = {
   id: number;
   name: string;
@@ -53,6 +68,16 @@ function getApiBaseUrl(): string {
   return baseUrl.replace(/\/$/, "");
 }
 
+export class ApiError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 async function parseError(response: Response): Promise<string> {
   try {
     const data = (await response.json()) as { detail?: unknown };
@@ -78,17 +103,21 @@ async function parseError(response: Response): Promise<string> {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers);
   const hasBody = init?.body !== undefined && init?.body !== null;
-  if (hasBody && !headers.has("Content-Type")) {
+  const isFormData =
+    typeof FormData !== "undefined" && init?.body instanceof FormData;
+  // Let the browser set multipart boundary for FormData uploads.
+  if (hasBody && !isFormData && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
 
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
     ...init,
     headers,
+    credentials: "include",
   });
 
   if (!response.ok) {
-    throw new Error(await parseError(response));
+    throw new ApiError(response.status, await parseError(response));
   }
 
   if (response.status === 204) {
@@ -98,8 +127,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
-export function listProductCategories() {
-  return request<ProductCategory[]>("/api/product-categories");
+export function listProductCategories(params?: { has_products?: boolean }) {
+  const query = new URLSearchParams();
+  if (params?.has_products === true) query.set("has_products", "true");
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return request<ProductCategory[]>(`/api/product-categories${suffix}`);
 }
 
 export function createProductCategory(payload: ProductCategoryInput) {
@@ -121,6 +153,35 @@ export function updateProductCategory(
 
 export function deleteProductCategory(id: number) {
   return request<void>(`/api/product-categories/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export function listProducts(params?: { product_category_id?: number }) {
+  const query = new URLSearchParams();
+  if (params?.product_category_id != null) {
+    query.set("product_category_id", String(params.product_category_id));
+  }
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return request<Product[]>(`/api/products${suffix}`);
+}
+
+export function createProduct(payload: ProductInput) {
+  return request<Product>("/api/products", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateProduct(id: number, payload: ProductInput) {
+  return request<Product>(`/api/products/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteProduct(id: number) {
+  return request<void>(`/api/products/${id}`, {
     method: "DELETE",
   });
 }
@@ -271,7 +332,8 @@ export function deleteSource(id: number) {
 
 export type EvaluationInput = {
   product_name: string;
-  product_category_id: number;
+  product_id: number;
+  product_category_id?: number | null;
   product_description: string;
   supplier_country: string;
   product_url?: string | null;
@@ -279,6 +341,7 @@ export type EvaluationInput = {
 
 export type EvaluationProduct = {
   product_name: string;
+  product_id?: number | null;
   product_category_id: number;
   product_category_name: string;
   product_description: string;
@@ -345,11 +408,182 @@ export type EvaluationResponse = {
   success: boolean;
   message: string;
   evaluation: EvaluationResult;
+  evaluation_id?: number | null;
 };
+
+export type AuthUser = {
+  id: number;
+  email: string;
+  role: string;
+  created_at: string;
+};
+
+export type AuthMessageResponse = {
+  success: boolean;
+  message: string;
+};
+
+export type EvaluationHistoryItem = {
+  id: number;
+  product_name: string;
+  product_id?: number | null;
+  product_category_id: number;
+  product_category_name: string;
+  supplier_country: string;
+  evaluation_mode: string;
+  created_at: string;
+};
+
+export type EvaluationDetailResponse = {
+  success: boolean;
+  message: string;
+  evaluation_id: number;
+  evaluation: EvaluationResult;
+  created_at: string;
+};
+
+export function registerUser(payload: { email: string; password: string }) {
+  return request<AuthUser>("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function loginUser(payload: { email: string; password: string }) {
+  return request<AuthUser>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function logoutUser() {
+  return request<AuthMessageResponse>("/api/auth/logout", {
+    method: "POST",
+  });
+}
+
+export function getCurrentUser() {
+  return request<AuthUser>("/api/auth/me");
+}
+
+export function listMyEvaluations() {
+  return request<EvaluationHistoryItem[]>("/api/evaluations/me");
+}
+
+export function getMyEvaluation(id: number) {
+  return request<EvaluationDetailResponse>(`/api/evaluations/${id}`);
+}
 
 export function createEvaluation(payload: EvaluationInput) {
   return request<EvaluationResponse>("/api/evaluations", {
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export type DocumentType = "declaration_of_conformity";
+
+export type EvaluationDocument = {
+  id: number;
+  evaluation_id: number;
+  original_filename: string;
+  document_type: string;
+  mime_type: string;
+  file_size: number;
+  page_count: number | null;
+  extraction_status: string;
+  created_at: string;
+};
+
+export type DocumentAiAssessment = {
+  summary: string;
+  observations: string[];
+  attention_points: string[];
+  limitations: string[];
+};
+
+export type DocumentRequirementFinding = {
+  requirement_id: number;
+  title: string;
+  description?: string | null;
+  status: "found" | "not_found" | "not_applicable" | string;
+  matched_keywords?: string[];
+  missing_keywords?: string[];
+  explanation?: string | null;
+};
+
+export type DocumentAnalysisResult = {
+  analysis_mode?: string;
+  document_type?: string;
+  summary?: {
+    total_requirements_checked?: number;
+    found?: number;
+    not_found?: number;
+    not_applicable?: number;
+  };
+  requirements?: DocumentRequirementFinding[];
+  ai_assessment?: DocumentAiAssessment | null;
+  limitations?: string[];
+};
+
+export type EvaluationDocumentDetail = EvaluationDocument & {
+  analysis_result: DocumentAnalysisResult | null;
+};
+
+export function uploadEvaluationDocument(
+  evaluationId: number,
+  file: File,
+  documentType: DocumentType = "declaration_of_conformity",
+) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("document_type", documentType);
+  return request<EvaluationDocument>(
+    `/api/evaluations/${evaluationId}/documents`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+}
+
+export function listEvaluationDocuments(evaluationId: number) {
+  return request<EvaluationDocument[]>(
+    `/api/evaluations/${evaluationId}/documents`,
+  );
+}
+
+export function getDocument(documentId: number) {
+  return request<EvaluationDocumentDetail>(`/api/documents/${documentId}`);
+}
+
+export function analyzeDocument(documentId: number) {
+  return request<EvaluationDocumentDetail>(
+    `/api/documents/${documentId}/analyze`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export type ProductDistributionRecord = {
+  id: number;
+  product_name: string;
+  product_category_id: number;
+  product_id: number | null;
+  city: string;
+  city_code: string;
+  quantity: number;
+  distribution_date: string;
+  import_country_id: number;
+  is_demo: boolean;
+  created_at: string;
+};
+
+export function listDistributions() {
+  return request<ProductDistributionRecord[]>("/api/distributions");
+}
+
+export function getDistribution(id: number) {
+  return request<ProductDistributionRecord>(`/api/distributions/${id}`);
 }

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
 
 from pydantic import AnyHttpUrl, BaseModel, Field, field_validator
@@ -8,7 +8,9 @@ from app.schemas.country import CountryResponse
 
 class EvaluationCreate(BaseModel):
     product_name: str = Field(min_length=1, max_length=255)
-    product_category_id: int = Field(gt=0)
+    product_id: int = Field(gt=0)
+    # Optional; when provided must match the selected product's category.
+    product_category_id: int | None = Field(default=None, gt=0)
     product_description: str = Field(min_length=1)
     supplier_country: str = Field(min_length=1, max_length=255)
     product_url: AnyHttpUrl | None = None
@@ -24,6 +26,7 @@ class EvaluationCreate(BaseModel):
 
 class EvaluationProduct(BaseModel):
     product_name: str
+    product_id: int | None = None
     product_category_id: int
     product_category_name: str
     product_description: str
@@ -90,6 +93,26 @@ class EvaluationResponse(BaseModel):
     success: bool
     message: str
     evaluation: EvaluationResult
+    evaluation_id: int | None = None
+
+
+class EvaluationHistoryItem(BaseModel):
+    id: int
+    product_name: str
+    product_id: int | None = None
+    product_category_id: int
+    product_category_name: str
+    supplier_country: str
+    evaluation_mode: str
+    created_at: datetime
+
+
+class EvaluationDetailResponse(BaseModel):
+    success: bool
+    message: str
+    evaluation_id: int
+    evaluation: EvaluationResult
+    created_at: datetime
 
 
 # Backward-compatible alias.

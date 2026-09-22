@@ -1,17 +1,27 @@
+from app.routers.analytics import router as analytics_router
+from app.routers.auth import router as auth_router
 from app.routers.countries import router as countries_router
+from app.routers.documents import router as documents_router
 from app.routers.evaluations import router as evaluations_router
 from app.routers.product_categories import router as product_categories_router
+from app.routers.product_distributions import router as product_distributions_router
+from app.routers.products import router as products_router
 from app.routers.regulations import router as regulations_router
 from app.routers.requirements import router as requirements_router
 from app.routers.risk_rules import router as risk_rules_router
 from app.routers.sources import router as sources_router
 
 __all__ = [
+    "auth_router",
     "product_categories_router",
+    "products_router",
     "countries_router",
     "regulations_router",
     "requirements_router",
     "risk_rules_router",
     "sources_router",
     "evaluations_router",
+    "documents_router",
+    "product_distributions_router",
+    "analytics_router",
 ]

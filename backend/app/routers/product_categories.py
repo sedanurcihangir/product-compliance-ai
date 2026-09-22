@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import exists, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models import ProductCategory
+from app.deps.auth import get_current_admin_user
+from app.models import Product, ProductCategory
+from app.models.user import User
 from app.schemas import (
     ProductCategoryCreate,
     ProductCategoryResponse,
@@ -18,6 +20,7 @@ router = APIRouter(prefix="/api/product-categories", tags=["product-categories"]
 def create_product_category(
     payload: ProductCategoryCreate,
     db: Session = Depends(get_db),
+    _admin: User = Depends(get_current_admin_user),
 ):
     category = ProductCategory(name=payload.name, description=payload.description)
     db.add(category)
@@ -34,8 +37,19 @@ def create_product_category(
 
 
 @router.get("", response_model=list[ProductCategoryResponse])
-def list_product_categories(db: Session = Depends(get_db)):
-    result = db.execute(select(ProductCategory).order_by(ProductCategory.id))
+def list_product_categories(
+    db: Session = Depends(get_db),
+    has_products: bool | None = Query(default=None),
+):
+    # Kept readable for authenticated user evaluation form (and admin UI).
+    # has_products=true → only parent categories that own Product rows
+    # (hides legacy product-named categories from the evaluate form).
+    stmt = select(ProductCategory).order_by(ProductCategory.id)
+    if has_products is True:
+        stmt = stmt.where(
+            exists().where(Product.product_category_id == ProductCategory.id)
+        )
+    result = db.execute(stmt)
     return result.scalars().all()
 
 
@@ -52,6 +66,7 @@ def update_product_category(
     category_id: int,
     payload: ProductCategoryUpdate,
     db: Session = Depends(get_db),
+    _admin: User = Depends(get_current_admin_user),
 ):
     category = db.get(ProductCategory, category_id)
     if category is None:
@@ -72,7 +87,11 @@ def update_product_category(
 
 
 @router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_product_category(category_id: int, db: Session = Depends(get_db)):
+def delete_product_category(
+    category_id: int,
+    db: Session = Depends(get_db),
+    _admin: User = Depends(get_current_admin_user),
+):
     category = db.get(ProductCategory, category_id)
     if category is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product category not found.")

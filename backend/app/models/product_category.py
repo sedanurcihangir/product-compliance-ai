@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db import Base
 
 if TYPE_CHECKING:
+    from app.models.product import Product
     from app.models.regulation import Regulation
 
 
@@ -16,6 +17,10 @@ class ProductCategory(Base):
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
+    # Legacy FK target for regulations created before Product M2M.
     regulations: Mapped[list["Regulation"]] = relationship(
+        back_populates="product_category",
+    )
+    products: Mapped[list["Product"]] = relationship(
         back_populates="product_category",
     )

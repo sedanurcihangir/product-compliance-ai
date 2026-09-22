@@ -7,7 +7,8 @@ from urllib.parse import urlparse
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
-from app.models import Country, ProductCategory, Regulation, Requirement, RiskRule, Source
+from app.models import Country, Product, ProductCategory, Regulation, Requirement, RiskRule, Source
+from app.models.product import ProductRegulation
 
 MVP_COUNTRY_CODE = "TR"
 _TOKEN_RE = re.compile(r"[0-9A-Za-zÇĞİÖŞÜçğıöşü]+", re.UNICODE)
@@ -143,6 +144,7 @@ def retrieve_context(
     product_name: str,
     product_description: str,
     supplier_country: str,
+    product: Product | None = None,
     regulation_limit: int = 8,
     requirement_limit: int = 12,
     risk_rule_limit: int = 8,
@@ -155,28 +157,65 @@ def retrieve_context(
         | _tokenize(category.description)
         | _tokenize(supplier_country)
     )
+    if product is not None:
+        query_tokens |= _tokenize(product.name) | _tokenize(product.description)
 
     turkey = db.execute(
         select(Country).where(Country.code == MVP_COUNTRY_CODE)
     ).scalar_one_or_none()
 
-    # Filter order: Country (TR) → ProductCategory → keyword scoring within that set.
+    # Prefer Product → ProductRegulation M2M; fall back to legacy category FK.
     regulations: list[Regulation] = []
     if turkey is not None:
-        regulations = (
-            db.execute(
-                select(Regulation)
-                .options(joinedload(Regulation.country))
-                .where(
-                    Regulation.country_id == turkey.id,
-                    Regulation.product_category_id == category.id,
+        if product is not None:
+            m2m_ids = [
+                row.regulation_id
+                for row in db.execute(
+                    select(ProductRegulation.regulation_id).where(
+                        ProductRegulation.product_id == product.id
+                    )
+                ).all()
+            ]
+            if m2m_ids:
+                regulations = (
+                    db.execute(
+                        select(Regulation)
+                        .options(joinedload(Regulation.country))
+                        .where(
+                            Regulation.country_id == turkey.id,
+                            Regulation.id.in_(m2m_ids),
+                        )
+                        .order_by(Regulation.id)
+                    )
+                    .scalars()
+                    .unique()
+                    .all()
                 )
-                .order_by(Regulation.id)
+        if not regulations:
+            # Legacy path: regulations still keyed by product_category_id.
+            # When evaluating a Product under "Elektronik Ürünler", also match
+            # regulations whose legacy category name equals the product name.
+            legacy_category_ids = {category.id}
+            if product is not None:
+                legacy_cat = db.execute(
+                    select(ProductCategory).where(ProductCategory.name == product.name)
+                ).scalar_one_or_none()
+                if legacy_cat is not None:
+                    legacy_category_ids.add(legacy_cat.id)
+            regulations = (
+                db.execute(
+                    select(Regulation)
+                    .options(joinedload(Regulation.country))
+                    .where(
+                        Regulation.country_id == turkey.id,
+                        Regulation.product_category_id.in_(legacy_category_ids),
+                    )
+                    .order_by(Regulation.id)
+                )
+                .scalars()
+                .unique()
+                .all()
             )
-            .scalars()
-            .unique()
-            .all()
-        )
 
     regulations = _rank(
         regulations,

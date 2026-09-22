@@ -3,11 +3,16 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.db import get_db
-from app.models import Country, ProductCategory, Regulation, Requirement
+from app.deps.auth import get_current_admin_user
+from app.models import Country, Product, ProductCategory, Regulation, Requirement
+from app.models.product import ProductRegulation
 from app.schemas import RegulationCreate, RegulationResponse, RegulationUpdate
 
-router = APIRouter(prefix="/api/regulations", tags=["regulations"])
-
+router = APIRouter(
+    prefix="/api/regulations",
+    tags=["regulations"],
+    dependencies=[Depends(get_current_admin_user)],
+)
 
 def _get_regulation_or_404(db: Session, regulation_id: int) -> Regulation:
     regulation = db.execute(
@@ -47,6 +52,41 @@ def _ensure_product_category_exists_if_set(
     return category
 
 
+def _sync_m2m_from_legacy_category(
+    db: Session,
+    *,
+    regulation_id: int,
+    product_category_id: int | None,
+) -> None:
+    """If legacy category name matches a Product, ensure ProductRegulation link."""
+    if product_category_id is None:
+        return
+    category = db.get(ProductCategory, product_category_id)
+    if category is None:
+        return
+    product = (
+        db.query(Product)
+        .filter(Product.name == category.name)
+        .order_by(Product.id)
+        .first()
+    )
+    if product is None:
+        return
+    exists = (
+        db.query(ProductRegulation)
+        .filter(
+            ProductRegulation.product_id == product.id,
+            ProductRegulation.regulation_id == regulation_id,
+        )
+        .one_or_none()
+    )
+    if exists is None:
+        db.add(
+            ProductRegulation(product_id=product.id, regulation_id=regulation_id)
+        )
+        db.commit()
+
+
 @router.post("", response_model=RegulationResponse, status_code=status.HTTP_201_CREATED)
 def create_regulation(payload: RegulationCreate, db: Session = Depends(get_db)):
     _ensure_country_exists(db, payload.country_id)
@@ -61,6 +101,11 @@ def create_regulation(payload: RegulationCreate, db: Session = Depends(get_db)):
     )
     db.add(regulation)
     db.commit()
+    _sync_m2m_from_legacy_category(
+        db,
+        regulation_id=regulation.id,
+        product_category_id=payload.product_category_id,
+    )
     return _get_regulation_or_404(db, regulation.id)
 
 
@@ -96,6 +141,11 @@ def update_regulation(
     regulation.effective_date = payload.effective_date
     regulation.status = payload.status
     db.commit()
+    _sync_m2m_from_legacy_category(
+        db,
+        regulation_id=regulation.id,
+        product_category_id=payload.product_category_id,
+    )
     return _get_regulation_or_404(db, regulation.id)
 
 

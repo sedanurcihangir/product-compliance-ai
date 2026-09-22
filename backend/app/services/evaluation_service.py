@@ -3,7 +3,7 @@ from __future__ import annotations
 from sqlalchemy.orm import Session
 
 from app.config import Settings, get_settings
-from app.models import ProductCategory
+from app.models import Product, ProductCategory
 from app.schemas.evaluation import (
     AiAssessment,
     AiRiskAssessment,
@@ -42,8 +42,8 @@ def _deterministic_limitations(bundle: RetrievalBundle) -> list[str]:
     limitations = [
         "Bu bir ön değerlendirmedir; resmi hukuki veya uygunluk onayı değildir.",
         "Sonuç database'deki mevcut kayıtlara ve retrieval sonucuna bağlıdır.",
-        "Mevzuatlar Türkiye (TR) ve seçilen ürün kategorisine göre filtrelenir; "
-        "kategoriye bağlı olmayan mevzuatlar getirilmez veya uydurulmaz.",
+        "Mevzuatlar Türkiye (TR) ve seçilen ürüne göre filtrelenir; "
+        "ürüne bağlı olmayan mevzuatlar getirilmez veya uydurulmaz.",
         "RiskRule.condition alanı serbest metindir; otomatik kesin risk skoru üretilmez.",
         "Bu sonuç deterministik (kural tabanlı) değerlendirmedir; LLM kullanılmamıştır.",
     ]
@@ -53,11 +53,11 @@ def _deterministic_limitations(bundle: RetrievalBundle) -> list[str]:
         )
     elif not bundle.regulations:
         limitations.append(
-            "Seçilen ürün kategorisi için henüz tanımlanmış bir mevzuat bulunmuyor."
+            "Seçilen ürün için henüz tanımlanmış bir mevzuat bulunmuyor."
         )
     elif not bundle.requirements:
         limitations.append(
-            "Seçilen kategoriye bağlı mevzuatlar için Requirement kaydı bulunamadı."
+            "Seçilen ürüne bağlı mevzuatlar için Requirement kaydı bulunamadı."
         )
     if not bundle.risk_rules:
         limitations.append(
@@ -74,21 +74,23 @@ def _build_deterministic_assessment(
     *,
     payload: EvaluationCreate,
     category: ProductCategory,
+    product: Product | None,
     bundle: RetrievalBundle,
 ) -> AiAssessment:
     """Grounded, non-LLM assessment derived only from retrieval records."""
+    product_label = product.name if product is not None else payload.product_name
     if not bundle.regulations:
         summary = (
-            f"“{payload.product_name}” için “{category.name}” kategorisinde "
-            "tanımlı mevzuat bulunamadı. Ön değerlendirme sınırlıdır; "
+            f"“{payload.product_name}” ({product_label}) için “{category.name}” "
+            "kategorisinde tanımlı mevzuat bulunamadı. Ön değerlendirme sınırlıdır; "
             "sistem mevzuat uydurmaz."
         )
     else:
         summary = (
-            f"“{payload.product_name}” için “{category.name}” kategorisinde "
-            f"{len(bundle.regulations)} mevzuat ve {len(bundle.requirements)} "
-            "gereklilik kaydına dayalı kural tabanlı ön değerlendirme yapılmıştır. "
-            "Bu sonuç resmi uygunluk onayı değildir."
+            f"“{payload.product_name}” ({product_label}) için “{category.name}” "
+            f"kategorisinde {len(bundle.regulations)} mevzuat ve "
+            f"{len(bundle.requirements)} gereklilik kaydına dayalı kural tabanlı "
+            "ön değerlendirme yapılmıştır. Bu sonuç resmi uygunluk onayı değildir."
         )
 
     missing_information: list[str] = []
@@ -101,7 +103,7 @@ def _build_deterministic_assessment(
             missing_information.append(f"Kontrol edilmesi gereken: {req.title}")
     if not bundle.regulations:
         missing_information.append(
-            "Kontrol edilmesi gereken: Seçilen ürün kategorisi için mevzuat "
+            "Kontrol edilmesi gereken: Seçilen ürün için mevzuat "
             "ve gereklilik tanımları"
         )
 
@@ -122,7 +124,7 @@ def _build_deterministic_assessment(
         )
     if not recommended_actions:
         recommended_actions.append(
-            "İlgili ürün kategorisi için Admin Panel üzerinden mevzuat, "
+            "İlgili ürün için Admin Panel üzerinden mevzuat, "
             "gereklilik ve kaynak tanımlayın."
         )
 
@@ -165,6 +167,7 @@ def _to_result(
     *,
     payload: EvaluationCreate,
     category: ProductCategory,
+    product: Product | None,
     bundle: RetrievalBundle,
     evaluation_mode: str,
     limitations: list[str],
@@ -173,6 +176,7 @@ def _to_result(
     return EvaluationResult(
         product=EvaluationProduct(
             product_name=payload.product_name,
+            product_id=product.id if product is not None else payload.product_id,
             product_category_id=category.id,
             product_category_name=category.name,
             product_description=payload.product_description,
@@ -228,12 +232,14 @@ def run_evaluation(
     db: Session,
     payload: EvaluationCreate,
     category: ProductCategory,
+    product: Product | None = None,
     settings: Settings | None = None,
 ) -> EvaluationResponse:
     settings = settings or get_settings()
     bundle = retrieve_context(
         db,
         category=category,
+        product=product,
         product_name=payload.product_name,
         product_description=payload.product_description,
         supplier_country=payload.supplier_country,
@@ -245,6 +251,7 @@ def run_evaluation(
     ai_assessment = _build_deterministic_assessment(
         payload=payload,
         category=category,
+        product=product,
         bundle=bundle,
     )
     message = "Kural tabanlı ön değerlendirme tamamlandı."
@@ -257,6 +264,7 @@ def run_evaluation(
     elif should_try_llm:
         product_block = (
             f"product_name={payload.product_name}\n"
+            f"catalog_product={product.name if product is not None else ''}\n"
             f"product_category={category.name}\n"
             f"product_description={payload.product_description}\n"
             f"supplier_country={payload.supplier_country}\n"
@@ -289,7 +297,7 @@ def run_evaluation(
                 [
                     "Bu sonuç retrieval + LLM ile üretilmiştir; resmi hukuki onay değildir.",
                     "Sonuç database'deki mevcut kayıtlara ve retrieval sonucuna bağlıdır.",
-                    "Mevzuatlar Türkiye (TR) ve seçilen ürün kategorisine göre filtrelenir.",
+                    "Mevzuatlar Türkiye (TR) ve seçilen ürüne göre filtrelenir.",
                     "Grounded regulation/requirement/source listeleri database kayıtlarından gelir; "
                     "LLM bu listeleri değiştirmez.",
                     *llm_assessment.limitations,
@@ -307,12 +315,14 @@ def run_evaluation(
             ai_assessment = _build_deterministic_assessment(
                 payload=payload,
                 category=category,
+                product=product,
                 bundle=bundle,
             )
 
     result = _to_result(
         payload=payload,
         category=category,
+        product=product,
         bundle=bundle,
         evaluation_mode=evaluation_mode,
         limitations=limitations,

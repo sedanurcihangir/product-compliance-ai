@@ -3,11 +3,15 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.deps.auth import get_current_admin_user
 from app.models import RiskRule
 from app.schemas import RiskRuleCreate, RiskRuleResponse, RiskRuleUpdate
 
-router = APIRouter(prefix="/api/risk-rules", tags=["risk-rules"])
-
+router = APIRouter(
+    prefix="/api/risk-rules",
+    tags=["risk-rules"],
+    dependencies=[Depends(get_current_admin_user)],
+)
 
 @router.post("", response_model=RiskRuleResponse, status_code=status.HTTP_201_CREATED)
 def create_risk_rule(payload: RiskRuleCreate, db: Session = Depends(get_db)):
