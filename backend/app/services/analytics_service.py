@@ -104,17 +104,27 @@ def get_overview(
     stmt = select(
         func.coalesce(func.sum(filtered.c.quantity), 0),
         func.count(),
-        func.count(func.distinct(filtered.c.product_label)),
         func.count(func.distinct(filtered.c.category_id)),
         func.count(func.distinct(filtered.c.import_country_id)),
     )
     row = db.execute(stmt).one()
+
+    # Catalog product count from Product table (not distinct distribution labels).
+    catalog_stmt = select(func.count()).select_from(Product)
+    if product_category_id is not None:
+        catalog_stmt = catalog_stmt.where(
+            Product.product_category_id == product_category_id
+        )
+    if product_name is not None and product_name.strip():
+        catalog_stmt = catalog_stmt.where(Product.name == product_name.strip())
+    catalog_product_count = int(db.execute(catalog_stmt).scalar() or 0)
+
     return AnalyticsOverviewResponse(
         total_quantity=int(row[0] or 0),
         record_count=int(row[1] or 0),
-        product_count=int(row[2] or 0),
-        category_count=int(row[3] or 0),
-        import_country_count=int(row[4] or 0),
+        product_count=catalog_product_count,
+        category_count=int(row[2] or 0),
+        import_country_count=int(row[3] or 0),
         # Scope of this aggregation: demo-only or non-demo-only (not mixed).
         is_demo=include_demo,
     )

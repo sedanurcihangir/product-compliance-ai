@@ -443,7 +443,7 @@ export default function AdminDashboardPage() {
             value: overview.data?.total_quantity,
           },
           { label: "Dağıtım Kaydı", value: overview.data?.record_count },
-          { label: "Ürün Sayısı", value: overview.data?.product_count },
+          { label: "Toplam Ürün", value: overview.data?.product_count },
           { label: "Kategori Sayısı", value: overview.data?.category_count },
           {
             label: "İthalat Ülkesi Sayısı",
