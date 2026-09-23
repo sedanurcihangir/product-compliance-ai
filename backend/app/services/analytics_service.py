@@ -144,6 +144,7 @@ def get_distribution_by_city(
         ProductDistribution.city,
         ProductDistribution.city_code,
         func.coalesce(func.sum(ProductDistribution.quantity), 0).label("quantity"),
+        func.count(ProductDistribution.id).label("record_count"),
     )
     stmt = _apply_filters(
         stmt,
@@ -167,6 +168,7 @@ def get_distribution_by_city(
             city=row.city,
             city_code=row.city_code,
             quantity=int(row.quantity or 0),
+            record_count=int(row.record_count or 0),
         )
         for row in rows
     ]

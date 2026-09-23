@@ -11,6 +11,7 @@ export type CityDistribution = {
   city: string;
   city_code: string;
   quantity: number;
+  record_count?: number;
 };
 
 export type ProductDistributionAnalytics = {

@@ -16,6 +16,7 @@ class CityDistributionResponse(BaseModel):
     city: str
     city_code: str
     quantity: int = Field(ge=0)
+    record_count: int = Field(default=0, ge=0)
 
 
 class ProductDistributionAnalyticsResponse(BaseModel):
