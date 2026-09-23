@@ -10,6 +10,7 @@ import {
   type Requirement,
   updateRequirement,
 } from "@/lib/api";
+import { formatRequirementTypeLabel } from "@/lib/adminDisplay";
 import styles from "./requirements.module.css";
 
 type FormMode = "create" | "edit";
@@ -244,7 +245,7 @@ export default function RequirementsPage() {
                         ({requirement.regulation.country.code})
                       </span>
                     </td>
-                    <td>{requirement.type || "—"}</td>
+                    <td>{formatRequirementTypeLabel(requirement.type)}</td>
                     <td>{requirement.description || "—"}</td>
                     <td>
                       <div className={styles.actions}>

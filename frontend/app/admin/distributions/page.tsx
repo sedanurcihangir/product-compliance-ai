@@ -38,10 +38,13 @@ export default function DistributionsAdminPage() {
   return (
     <section className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Distributions</h1>
+        <h1 className={styles.title}>Dağıtımlar</h1>
         <p className={styles.subtitle}>
-          Mevcut product distribution kayıtlarının listesi. Ana sayfa analitiği{" "}
+          Mevcut ürün dağıtım kayıtlarının listesi. Ana sayfa analitiği{" "}
           <a href="/admin">/admin</a> üzerinden görüntülenir.
+        </p>
+        <p className={styles.subtitle}>
+          Demo veri seti — gerçek ticari veya ithalat verisi değildir.
         </p>
       </header>
 

@@ -326,9 +326,10 @@ export default function AdminDashboardPage() {
           </span>
         ) : null}
         <p className={styles.note}>
-          Bu ekrandaki sayılar örnek/demo dağıtım kayıtlarına dayanır; gerçek
-          piyasa veya satış verisi değildir. Trend grafiği yalnızca yeterli
-          tarih noktası olduğunda gösterilir.
+          Demo veri seti — gerçek ticari veya ithalat verisi değildir. Bu
+          ekrandaki dağıtım sayıları örnek kayıtlara dayanır; gerçek piyasa veya
+          satış verisi olarak sunulmaz. Trend grafiği yalnızca yeterli tarih
+          noktası olduğunda gösterilir.
         </p>
       </header>
 

@@ -78,10 +78,10 @@ export default function AdminGuard({
             Ana Sayfa
           </Link>
           <Link href="/admin/product-categories" className={styles.navLink}>
-            Product Categories
+            Ürün Kategorileri
           </Link>
           <Link href="/admin/products" className={styles.navLink}>
-            Products
+            Ürünler
           </Link>
           <Link href="/admin/regulations" className={styles.navLink}>
             Mevzuatlar
@@ -96,7 +96,7 @@ export default function AdminGuard({
             Kaynaklar
           </Link>
           <Link href="/admin/distributions" className={styles.navLink}>
-            Distributions
+            Dağıtımlar
           </Link>
         </nav>
       </aside>

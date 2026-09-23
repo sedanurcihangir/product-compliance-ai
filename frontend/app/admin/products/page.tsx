@@ -101,7 +101,7 @@ export default function ProductsPage() {
 
     const name = form.name.trim();
     if (!name) {
-      setFormError("Name zorunludur.");
+      setFormError("Ad zorunludur.");
       return;
     }
     if (!form.product_category_id) {
@@ -156,10 +156,10 @@ export default function ProductsPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <div>
-          <h1 className={styles.title}>Products</h1>
+          <h1 className={styles.title}>Ürünler</h1>
           <p className={styles.subtitle}>
-            Ürünleri kategorilere bağlı olarak yönetin. Değerlendirme formu bu
-            listeden ürün seçer.
+            Değerlendirme formunda seçilen ürün kayıtları. Her ürün bir
+            kategoriye (ör. Elektronik Ürünler) bağlıdır.
           </p>
         </div>
         <button type="button" className={styles.primaryButton} onClick={openCreateForm}>
@@ -181,10 +181,10 @@ export default function ProductsPage() {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>Description</th>
-                  <th>Actions</th>
+                  <th>Ad</th>
+                  <th>Kategori</th>
+                  <th>Açıklama</th>
+                  <th>İşlemler</th>
                 </tr>
               </thead>
               <tbody>
@@ -234,7 +234,7 @@ export default function ProductsPage() {
             </h2>
             <form className={styles.form} onSubmit={handleSubmit}>
               <label className={styles.label}>
-                Name
+                Ad
                 <input
                   className={styles.input}
                   value={form.name}
@@ -247,7 +247,7 @@ export default function ProductsPage() {
                 />
               </label>
               <label className={styles.label}>
-                Category
+                Kategori
                 <select
                   className={styles.input}
                   value={form.product_category_id}
@@ -271,7 +271,7 @@ export default function ProductsPage() {
                 </select>
               </label>
               <label className={styles.label}>
-                Description
+                Açıklama
                 <textarea
                   className={styles.textarea}
                   value={form.description}

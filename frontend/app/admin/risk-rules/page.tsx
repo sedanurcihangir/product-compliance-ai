@@ -8,6 +8,7 @@ import {
   type RiskRule,
   updateRiskRule,
 } from "@/lib/api";
+import { formatRiskLevelLabel } from "@/lib/adminDisplay";
 import styles from "./risk-rules.module.css";
 
 type FormMode = "create" | "edit";
@@ -184,7 +185,7 @@ export default function RiskRulesPage() {
                 {rules.map((rule) => (
                   <tr key={rule.id}>
                     <td>{rule.condition}</td>
-                    <td>{rule.risk_level}</td>
+                    <td>{formatRiskLevelLabel(rule.risk_level)}</td>
                     <td>{rule.explanation || "—"}</td>
                     <td>
                       <div className={styles.actions}>

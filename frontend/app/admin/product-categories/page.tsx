@@ -91,7 +91,7 @@ export default function ProductCategoriesPage() {
 
     const name = form.name.trim();
     if (!name) {
-      setFormError("Name zorunludur.");
+      setFormError("Ad zorunludur.");
       return;
     }
 
@@ -141,10 +141,10 @@ export default function ProductCategoriesPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <div>
-          <h1 className={styles.title}>Product Categories</h1>
+          <h1 className={styles.title}>Ürün Kategorileri</h1>
           <p className={styles.subtitle}>
-            Ürün kategorilerini oluşturun, düzenleyin ve silin. Veriler FastAPI
-            üzerinden PostgreSQL&apos;e kaydedilir.
+            Kategoriler geniş ürün gruplarıdır (ör. Elektronik Ürünler). Asıl
+            ürün kayıtları Ürünler sayfasında yönetilir.
           </p>
         </div>
         <button type="button" className={styles.primaryButton} onClick={openCreateForm}>
@@ -166,9 +166,9 @@ export default function ProductCategoriesPage() {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Name</th>
-                  <th>Description</th>
-                  <th>Actions</th>
+                  <th>Ad</th>
+                  <th>Açıklama</th>
+                  <th>İşlemler</th>
                 </tr>
               </thead>
               <tbody>
@@ -217,7 +217,7 @@ export default function ProductCategoriesPage() {
             </h2>
             <form className={styles.form} onSubmit={handleSubmit}>
               <label className={styles.label}>
-                Name
+                Ad
                 <input
                   className={styles.input}
                   value={form.name}
@@ -230,7 +230,7 @@ export default function ProductCategoriesPage() {
                 />
               </label>
               <label className={styles.label}>
-                Description
+                Açıklama
                 <textarea
                   className={styles.textarea}
                   value={form.description}
